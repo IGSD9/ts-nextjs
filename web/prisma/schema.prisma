@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id      String        @id @default(cuid())
+  email   String        @unique
+  name    String
+  role    String        @default("user")
+  reports DailyReport[]
+}
+
+model DailyReport {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  reportDate     DateTime @db.Date
+  sleep          Int
+  body           Int
+  mood           Int
+  fog            Int
+  energy         Int
+  connection     Int
+  wednesdayExtra Int?
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, reportDate])
+}
+
+model PositiveMessage {
+  id      String @id @default(cuid())
+  content String
+}

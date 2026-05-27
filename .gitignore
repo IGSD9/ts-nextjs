@@ -1,0 +1,17 @@
+# OS
+.DS_Store
+
+# Web app
+web/node_modules/
+web/.next/
+web/out/
+web/build/
+web/.vercel/
+web/.env*
+!web/.env.example
+web/*.tsbuildinfo
+web/next-env.d.ts
+
+# Logs
+*.log
+npm-debug.log*
