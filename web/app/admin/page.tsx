@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { TeamConditionLogo } from "@/components/team-condition-logo";
 import { getAccessTokenFromRequest, getAppUserFromAccessToken } from "@/lib/auth";
+import { AdminPositiveMessagesSection } from "@/components/admin-positive-messages-section";
 import { AdminOtherNotesPeriodSelect } from "@/components/admin-other-notes-period-select";
 import { getAdminOtherNotes } from "@/lib/admin-other-notes";
 import { parseOtherNotesPeriod } from "@/lib/other-note";
@@ -10,6 +11,7 @@ import {
   FOG_ALERT_CONSECUTIVE_CHECKINS,
   getFogAlertUsers,
 } from "@/lib/fog-alert";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +21,12 @@ const secondaryButtonClass =
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ notesPeriod?: string }>;
+  searchParams: Promise<{
+    notesPeriod?: string;
+    msgSaved?: string;
+    msgDeleted?: string;
+    msgError?: string;
+  }>;
 }) {
   const accessToken = await getAccessTokenFromRequest();
   const appUser = await getAppUserFromAccessToken(accessToken);
@@ -32,14 +39,21 @@ export default async function AdminPage({
     redirect("/");
   }
 
-  const { notesPeriod: notesPeriodParam } = await searchParams;
+  const { notesPeriod: notesPeriodParam, msgSaved, msgDeleted, msgError } =
+    await searchParams;
   const notesPeriod = parseOtherNotesPeriod(notesPeriodParam);
+  const messageError = msgError ? decodeURIComponent(msgError) : null;
 
-  const [summary, fogAlerts, otherNotesResult] = await Promise.all([
-    getAdminTeamSummary(),
-    getFogAlertUsers(),
-    getAdminOtherNotes(notesPeriod),
-  ]);
+  const [summary, fogAlerts, otherNotesResult, positiveMessages] =
+    await Promise.all([
+      getAdminTeamSummary(),
+      getFogAlertUsers(),
+      getAdminOtherNotes(notesPeriod),
+      prisma.positiveMessage.findMany({
+        orderBy: { id: "asc" },
+        select: { id: true, content: true },
+      }),
+    ]);
 
   return (
     <main className="home-screen-bg min-h-screen px-4 py-8 sm:px-6">
@@ -175,6 +189,13 @@ export default async function AdminPage({
             )}
           </div>
         </section>
+
+        <AdminPositiveMessagesSection
+          messages={positiveMessages}
+          saved={msgSaved === "1"}
+          deleted={msgDeleted === "1"}
+          errorMessage={messageError}
+        />
 
         <div className="mt-8 flex justify-center">
           <Link href="/" className={secondaryButtonClass}>
