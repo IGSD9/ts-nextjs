@@ -80,7 +80,7 @@ export function CheckinForm() {
                   aria-label={`${fieldLabels[field]}: ${optionLabel}`}
                   className={`rounded-md border px-3 py-4 text-2xl leading-none ${
                     selected
-                      ? "border-zinc-900 bg-zinc-900 text-white"
+                      ? "border-zinc-400 bg-zinc-200 text-zinc-900"
                       : "border-zinc-300 bg-white text-zinc-800"
                   }`}
                 >
@@ -110,7 +110,7 @@ export function CheckinForm() {
                   aria-label={`水曜の追加回答: ${n}（タップで選択／同じ数字で解除）`}
                   className={`min-w-[3.25rem] rounded-md border px-4 py-3 text-lg font-semibold ${
                     selected
-                      ? "border-zinc-900 bg-zinc-900 text-white"
+                      ? "border-zinc-400 bg-zinc-200 text-zinc-900"
                       : "border-zinc-300 bg-white text-zinc-800"
                   }`}
                 >

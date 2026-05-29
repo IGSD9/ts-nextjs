@@ -4,6 +4,48 @@
 
 管理者メール（SQL 用）: `kirutooo333@gmail.com`
 
+**リポジトリは 1 つだけ使う**（例: `team-condition-checker`）。コードはローカルの `web/` にあります。
+
+---
+
+## 0. やり直し（GitHub / Vercel を削除して最初から）
+
+### 0-1. Vercel（作っていれば）
+
+1. https://vercel.com/dashboard
+2. 該当プロジェクト → **Settings** → 最下部 **Delete Project**
+
+### 0-2. GitHub でリポジトリ削除
+
+各リポジトリで:
+
+1. **Settings** → 最下部 **Danger Zone** → **Delete this repository**
+2. 対象: `ts-nextjs` / `team-condition-checker`（両方削除して OK）
+
+### 0-3. 新しい GitHub リポジトリを 1 つだけ作成
+
+1. https://github.com/new
+2. 名前例: **`team-condition-checker`**
+3. **README / .gitignore / license は一切追加しない**
+4. Create repository
+
+### 0-4. ローカルから push（ターミナル）
+
+```bash
+cd "/Users/ikegawasyodai/Documents/project/team codi"
+git remote remove origin
+git remote add origin https://github.com/IGSD9/team-condition-checker.git
+git push -u origin main
+```
+
+※ リポジトリ名を変えたら URL も合わせる。
+
+### 0-5. Vercel で新規 Import
+
+- リポジトリ: **今作った 1 つだけ**
+- **Root Directory**: `web`
+- 環境変数 4 つ（下記 Step 2 参照）を入れてから Deploy
+
 ---
 
 ## 1. GitHub に push

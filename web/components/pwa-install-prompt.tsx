@@ -44,10 +44,21 @@ function shouldShowInstallPrompt() {
 }
 
 export function PwaInstallPrompt() {
-  const [visible, setVisible] = useState(shouldShowInstallPrompt);
-  const [isIos] = useState(isIosDevice);
+  const [visible, setVisible] = useState(false);
+  const [isIos, setIsIos] = useState(false);
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
+
+  useEffect(() => {
+    const timerId = window.setTimeout(() => {
+      setIsIos(isIosDevice());
+      setVisible(shouldShowInstallPrompt());
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timerId);
+    };
+  }, []);
 
   useEffect(() => {
     if (!visible) {
