@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { parseOtherNoteFromForm } from "@/lib/admin-other-notes";
+import { parseOtherNoteFromForm } from "@/lib/other-note";
 import { CheckinPayloadSchema } from "@/lib/checkin-codes";
 import { getAccessTokenFromRequest, getAppUserFromAccessToken } from "@/lib/auth";
 

@@ -3,7 +3,7 @@
 import {
   OTHER_NOTES_PERIOD_OPTIONS,
   type OtherNotesPeriod,
-} from "@/lib/admin-other-notes";
+} from "@/lib/other-note";
 
 type AdminOtherNotesPeriodSelectProps = {
   value: OtherNotesPeriod;

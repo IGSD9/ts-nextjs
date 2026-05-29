@@ -3,10 +3,8 @@ import { redirect } from "next/navigation";
 import { TeamConditionLogo } from "@/components/team-condition-logo";
 import { getAccessTokenFromRequest, getAppUserFromAccessToken } from "@/lib/auth";
 import { AdminOtherNotesPeriodSelect } from "@/components/admin-other-notes-period-select";
-import {
-  getAdminOtherNotes,
-  parseOtherNotesPeriod,
-} from "@/lib/admin-other-notes";
+import { getAdminOtherNotes } from "@/lib/admin-other-notes";
+import { parseOtherNotesPeriod } from "@/lib/other-note";
 import { getAdminTeamSummary } from "@/lib/admin-stats";
 import {
   FOG_ALERT_CONSECUTIVE_CHECKINS,

@@ -6,7 +6,7 @@ import {
   CHECKIN_EMOJIS,
   CHECKIN_OPTION_ARIA_LABELS,
 } from "@/lib/checkin-codes";
-import { OTHER_NOTE_MAX_LENGTH } from "@/lib/admin-other-notes";
+import { OTHER_NOTE_MAX_LENGTH } from "@/lib/other-note";
 import { submitCheckinAction } from "./actions";
 
 type FieldKey = keyof typeof CHECKIN_CODES;
