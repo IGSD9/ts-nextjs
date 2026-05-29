@@ -6,6 +6,7 @@ import {
   CHECKIN_EMOJIS,
   CHECKIN_OPTION_ARIA_LABELS,
 } from "@/lib/checkin-codes";
+import { OTHER_NOTE_MAX_LENGTH } from "@/lib/admin-other-notes";
 import { submitCheckinAction } from "./actions";
 
 type FieldKey = keyof typeof CHECKIN_CODES;
@@ -129,10 +130,28 @@ export function CheckinForm() {
         <input type="hidden" name="wednesdayExtra" value="" />
       )}
 
+      <section className="rounded-lg border border-zinc-200 p-4">
+        <p className="text-sm text-zinc-500">
+          管理者への相談・連絡があれば記入してください（任意）
+        </p>
+        <p className="mt-1 text-lg font-semibold text-[#173b4a]">その他</p>
+        <textarea
+          id="otherNote"
+          name="otherNote"
+          rows={4}
+          maxLength={OTHER_NOTE_MAX_LENGTH}
+          placeholder="例: プロジェクトの進め方について相談したいです"
+          className="mt-3 w-full resize-y rounded-xl border border-[#d9dfde] bg-[#f7fbfb] px-3 py-2.5 text-sm leading-relaxed text-[#173b4a] placeholder:text-zinc-400 outline-none transition focus:border-[#1f4c60] focus:bg-white focus:ring-2 focus:ring-[#1f4c60]/20"
+        />
+        <p className="mt-1 text-xs text-zinc-500">
+          ※ 空欄のままでも送信できます。FOG アラートの判定には含まれません。
+        </p>
+      </section>
+
       <button
         type="submit"
         disabled={!isComplete}
-        className="w-full rounded-md bg-zinc-900 px-4 py-3 text-white disabled:opacity-50"
+        className="w-full rounded-xl border border-[#1e4555] bg-[#1f4c60] px-4 py-3 text-sm font-medium text-white shadow-[0_3px_8px_rgba(31,76,96,0.28)] transition hover:bg-[#163b4a] disabled:cursor-not-allowed disabled:opacity-50"
       >
         送信する
       </button>

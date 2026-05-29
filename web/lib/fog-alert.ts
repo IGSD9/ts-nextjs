@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
  * - 濃霧 = fog コード 3（CHECKIN_CODES.fog の3番目）
  * - 各ユーザのチェックイン日のみを日付降順に並べ、直近から遡って fog===3 が
  *   5回連続したらアラート（欠席日はカウントに含めない）
+ * - DailyReport.otherNote（その他）は参照しない
  */
 export const FOG_HEAVY_CODE = 3;
 export const FOG_ALERT_CONSECUTIVE_CHECKINS = 5;

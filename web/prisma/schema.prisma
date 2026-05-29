@@ -26,6 +26,7 @@ model DailyReport {
   energy         Int
   connection     Int
   wednesdayExtra Int?
+  otherNote      String?
   createdAt      DateTime @default(now())
 
   @@unique([userId, reportDate])

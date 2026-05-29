@@ -12,7 +12,7 @@ export default function CheckinPage({
           今日のチェックイン
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-zinc-600">
-          6項目をタップで選んで送信してください（同日再送信は上書き）。
+          6項目をタップで選び、必要なら一番下の「その他」に記入して送信してください（同日再送信は上書き）。
         </p>
         {searchParams.error ? (
           <p className="mt-4 rounded-xl border border-[#e8c4c4] bg-[#fdf5f5] px-3 py-2 text-sm text-[#8b3a3a]">

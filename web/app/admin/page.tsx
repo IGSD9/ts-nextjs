@@ -2,6 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { TeamConditionLogo } from "@/components/team-condition-logo";
 import { getAccessTokenFromRequest, getAppUserFromAccessToken } from "@/lib/auth";
+import { AdminOtherNotesPeriodSelect } from "@/components/admin-other-notes-period-select";
+import {
+  getAdminOtherNotes,
+  parseOtherNotesPeriod,
+} from "@/lib/admin-other-notes";
 import { getAdminTeamSummary } from "@/lib/admin-stats";
 import {
   FOG_ALERT_CONSECUTIVE_CHECKINS,
@@ -13,7 +18,11 @@ export const dynamic = "force-dynamic";
 const secondaryButtonClass =
   "rounded-xl border border-[#304d5a] bg-white px-5 py-2.5 text-sm font-medium text-[#173b4a] shadow-[0_2px_6px_rgba(31,76,96,0.14)] transition hover:bg-[#f7fbfb]";
 
-export default async function AdminPage() {
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: { notesPeriod?: string };
+}) {
   const accessToken = await getAccessTokenFromRequest();
   const appUser = await getAppUserFromAccessToken(accessToken);
 
@@ -25,9 +34,12 @@ export default async function AdminPage() {
     redirect("/");
   }
 
-  const [summary, fogAlerts] = await Promise.all([
+  const notesPeriod = parseOtherNotesPeriod(searchParams.notesPeriod);
+
+  const [summary, fogAlerts, otherNotesResult] = await Promise.all([
     getAdminTeamSummary(),
     getFogAlertUsers(),
+    getAdminOtherNotes(notesPeriod),
   ]);
 
   return (
@@ -123,6 +135,44 @@ export default async function AdminPage() {
                   </tbody>
                 </table>
               </div>
+            )}
+          </div>
+        </section>
+
+        <section className="mt-6 overflow-hidden rounded-2xl border border-[#e8eeed]">
+          <div className="border-b border-[#e8eeed] bg-gradient-to-b from-[#f8f5ea]/80 to-white px-4 py-3">
+            <h2 className="text-base font-semibold text-[#173b4a]">
+              その他（相談・連絡）
+            </h2>
+            <p className="mt-1 text-xs leading-relaxed text-zinc-600">
+              メンバーが記入した内容です（{otherNotesResult.periodLabel}・
+              {otherNotesResult.periodRangeLabel}）。FOG アラートの回数には含みません。
+            </p>
+          </div>
+
+          <div className="space-y-3 px-4 py-4">
+            <AdminOtherNotesPeriodSelect value={otherNotesResult.period} />
+
+            {otherNotesResult.entries.length === 0 ? (
+              <p className="rounded-xl border border-[#e8eeed] bg-[#f7fbfb] px-3 py-3 text-sm text-zinc-600">
+                選択した期間に記入はありません。
+              </p>
+            ) : (
+              otherNotesResult.entries.map((entry) => (
+                <article
+                  key={entry.id}
+                  className="rounded-xl border border-[#e8eeed] bg-white p-4 shadow-[0_2px_6px_rgba(31,76,96,0.06)]"
+                >
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="font-medium text-[#173b4a]">{entry.userName}</p>
+                    <p className="text-xs text-zinc-500">{entry.reportDate}</p>
+                  </div>
+                  <p className="mt-0.5 text-xs text-zinc-500">{entry.userEmail}</p>
+                  <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-800">
+                    {entry.otherNote}
+                  </p>
+                </article>
+              ))
             )}
           </div>
         </section>

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { parseOtherNoteFromForm } from "@/lib/admin-other-notes";
 import { CheckinPayloadSchema } from "@/lib/checkin-codes";
 import { getAccessTokenFromRequest, getAppUserFromAccessToken } from "@/lib/auth";
 
@@ -43,6 +44,7 @@ export async function submitCheckinAction(formData: FormData) {
   }
 
   const reportDate = parseReportDate(formData.get("reportDate"));
+  const otherNote = parseOtherNoteFromForm(formData.get("otherNote"));
 
   await prisma.dailyReport.upsert({
     where: {
@@ -55,9 +57,11 @@ export async function submitCheckinAction(formData: FormData) {
       userId: appUser.id,
       reportDate,
       ...parsed.data,
+      otherNote,
     },
     update: {
       ...parsed.data,
+      otherNote,
     },
   });
 
