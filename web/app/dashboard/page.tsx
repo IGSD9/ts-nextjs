@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { PeriodSelect } from "@/components/period-select";
 import { TeamConditionLogo } from "@/components/team-condition-logo";
 import { getAccessTokenFromRequest, getAppUserFromAccessToken } from "@/lib/auth";
 import { buildDashboardAdvice } from "@/lib/dashboard-advice";
 import {
   buildDashboardDays,
-  getDashboardDateRange,
-  getLast7DayKeys,
+  getDashboardPeriodContext,
   type DashboardDay,
 } from "@/lib/dashboard";
+import { parseOtherNotesPeriod } from "@/lib/other-note";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +19,11 @@ const primaryButtonClass =
 const secondaryButtonClass =
   "rounded-xl border border-[#304d5a] bg-white px-5 py-2.5 text-sm font-medium text-[#173b4a] shadow-[0_2px_6px_rgba(31,76,96,0.14)] transition hover:bg-[#f7fbfb]";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ dashboardPeriod?: string }>;
+}) {
   const accessToken = await getAccessTokenFromRequest();
   const appUser = await getAppUserFromAccessToken(accessToken);
 
@@ -26,19 +31,36 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const { weekStart, todayDate } = getDashboardDateRange();
-  const dayKeys = getLast7DayKeys();
+  const { dashboardPeriod: dashboardPeriodParam } = await searchParams;
+  const dashboardPeriod = parseOtherNotesPeriod(dashboardPeriodParam);
+
+  const earliestReport =
+    dashboardPeriod === "all"
+      ? await prisma.dailyReport.findFirst({
+          where: { userId: appUser.id },
+          orderBy: { reportDate: "asc" },
+          select: { reportDate: true },
+        })
+      : null;
+
+  const periodContext = getDashboardPeriodContext(
+    dashboardPeriod,
+    earliestReport?.reportDate ?? null,
+  );
 
   const reports = await prisma.dailyReport.findMany({
     where: {
       userId: appUser.id,
-      reportDate: { gte: weekStart, lte: todayDate },
+      reportDate: {
+        gte: periodContext.rangeStart,
+        lte: periodContext.rangeEnd,
+      },
     },
     orderBy: { reportDate: "asc" },
     select: { reportDate: true, fog: true, mood: true },
   });
 
-  const days = buildDashboardDays(reports, dayKeys);
+  const days = buildDashboardDays(reports, periodContext.dayKeys);
   const advice = buildDashboardAdvice(reports);
 
   return (
@@ -50,11 +72,20 @@ export default async function DashboardPage() {
             マイダッシュボード
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-zinc-600">
-            {appUser.name} さんの直近7日間（Asia/Tokyo）
+            {appUser.name} さん（{periodContext.periodLabel}・
+            {periodContext.periodRangeLabel}・Asia/Tokyo）
           </p>
         </div>
 
-        <section className="mt-8 rounded-2xl border border-[#e8eeed] bg-[#f7fbfb]/60 p-4">
+        <div className="mt-4 flex justify-center">
+          <PeriodSelect
+            value={periodContext.period}
+            basePath="/dashboard"
+            paramKey="dashboardPeriod"
+          />
+        </div>
+
+        <section className="mt-6 rounded-2xl border border-[#e8eeed] bg-[#f7fbfb]/60 p-4">
           <h2 className="text-base font-semibold text-[#173b4a]">お天気図</h2>
           <p className="mt-1 text-xs leading-relaxed text-zinc-600">
             霧（プロジェクトの見通し）と気分を日別に表示します。
@@ -88,9 +119,11 @@ export default async function DashboardPage() {
 }
 
 function WeatherChart({ days }: { days: DashboardDay[] }) {
+  const minWidthRem = Math.max(days.length * 5.5, 20);
+
   return (
     <div className="mt-4 overflow-x-auto pb-2">
-      <div className="flex min-w-[42rem] gap-2">
+      <div className="flex gap-2" style={{ minWidth: `${minWidthRem}rem` }}>
         {days.map((day) => (
           <DayCard key={day.dateKey} day={day} />
         ))}

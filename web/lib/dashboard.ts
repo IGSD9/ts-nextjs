@@ -5,6 +5,10 @@ import {
   type CheckinField,
 } from "@/lib/checkin-codes";
 import {
+  OTHER_NOTES_PERIOD_OPTIONS,
+  type OtherNotesPeriod,
+} from "@/lib/other-note";
+import {
   addDaysUtc,
   parseDateOnlyUtc,
   tokyoDateString,
@@ -18,26 +22,75 @@ export type DashboardDay = {
   moodEmoji: string | null;
 };
 
-/** Step 09: Asia/Tokyo で直近7日（今日含む）の YYYY-MM-DD 配列（古い→新しい） */
-export function getLast7DayKeys(): string[] {
-  const todayTokyo = tokyoDateString();
-  const todayDate = parseDateOnlyUtc(todayTokyo);
+export type DashboardPeriodContext = {
+  period: OtherNotesPeriod;
+  periodLabel: string;
+  periodRangeLabel: string;
+  rangeStart: Date;
+  rangeEnd: Date;
+  dayKeys: string[];
+};
+
+function dateToKey(date: Date): string {
+  const y = date.getUTCFullYear();
+  const m = `${date.getUTCMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getUTCDate()}`.padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function getDayKeysBetween(start: Date, end: Date): string[] {
   const keys: string[] = [];
-  for (let offset = -6; offset <= 0; offset += 1) {
-    const d = addDaysUtc(todayDate, offset);
-    const y = d.getUTCFullYear();
-    const m = `${d.getUTCMonth() + 1}`.padStart(2, "0");
-    const day = `${d.getUTCDate()}`.padStart(2, "0");
-    keys.push(`${y}-${m}-${day}`);
+  let cursor = start;
+  while (cursor.getTime() <= end.getTime()) {
+    keys.push(dateToKey(cursor));
+    cursor = addDaysUtc(cursor, 1);
   }
   return keys;
 }
 
+/** Step 09: Asia/Tokyo で直近7日（今日含む）の YYYY-MM-DD 配列（古い→新しい） */
+export function getLast7DayKeys(): string[] {
+  const { dayKeys } = getDashboardPeriodContext("7d", null);
+  return dayKeys;
+}
+
 export function getDashboardDateRange(): { weekStart: Date; todayDate: Date } {
+  const { rangeStart, rangeEnd } = getDashboardPeriodContext("7d", null);
+  return { weekStart: rangeStart, todayDate: rangeEnd };
+}
+
+export function getDashboardPeriodContext(
+  period: OtherNotesPeriod,
+  earliestReportDate: Date | null,
+): DashboardPeriodContext {
   const todayTokyo = tokyoDateString();
-  const todayDate = parseDateOnlyUtc(todayTokyo);
-  const weekStart = addDaysUtc(todayDate, -6);
-  return { weekStart, todayDate };
+  const rangeEnd = parseDateOnlyUtc(todayTokyo);
+
+  let rangeStart: Date;
+  if (period === "all") {
+    rangeStart = earliestReportDate ?? rangeEnd;
+  } else {
+    const daysInclusive =
+      period === "7d" ? 7 : period === "14d" ? 14 : 30;
+    rangeStart = addDaysUtc(rangeEnd, -(daysInclusive - 1));
+  }
+
+  const dayKeys = getDayKeysBetween(rangeStart, rangeEnd);
+  const periodLabel =
+    OTHER_NOTES_PERIOD_OPTIONS.find((option) => option.value === period)?.label ??
+    "直近7日";
+
+  return {
+    period,
+    periodLabel,
+    periodRangeLabel:
+      period === "all" && !earliestReportDate
+        ? todayTokyo
+        : `${dateToKey(rangeStart)} 〜 ${todayTokyo}`,
+    rangeStart,
+    rangeEnd,
+    dayKeys,
+  };
 }
 
 function formatDateLabel(dateKey: string): string {
