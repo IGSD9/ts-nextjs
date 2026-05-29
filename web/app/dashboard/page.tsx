@@ -68,9 +68,6 @@ export default async function DashboardPage() {
           </div>
           <div className="px-4 py-4">
             <p className="text-sm leading-relaxed text-zinc-700">{advice}</p>
-            <p className="mt-3 text-xs text-zinc-500">
-              ※ ルールベースの短文です（Step 09 MVP）。参照: fog / mood / 入力日数。
-            </p>
           </div>
         </section>
 
