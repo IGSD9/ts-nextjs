@@ -8,17 +8,17 @@ import {
   parsePositiveMessageId,
 } from "@/lib/positive-message";
 
-function redirectAdmin(params?: Record<string, string>) {
+function redirectAdminMessages(params?: Record<string, string>) {
   const query = new URLSearchParams(params);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
-  redirect(`/admin${suffix}`);
+  redirect(`/admin/messages${suffix}`);
 }
 
-function redirectAdminError(message: string): never {
+function redirectAdminMessagesError(message: string): never {
   const query = new URLSearchParams({
     msgError: encodeURIComponent(message),
   });
-  redirect(`/admin?${query.toString()}`);
+  redirect(`/admin/messages?${query.toString()}`);
 }
 
 async function ensureAdminOrRedirectLogin() {
@@ -33,14 +33,14 @@ export async function createPositiveMessageAction(formData: FormData) {
 
   const parsed = parsePositiveMessageContent(formData.get("content"));
   if (!parsed.ok) {
-    redirectAdminError(parsed.error);
+    redirectAdminMessagesError(parsed.error);
   }
 
   await prisma.positiveMessage.create({
     data: { content: parsed.content },
   });
 
-  redirectAdmin({ msgSaved: "1" });
+  redirectAdminMessages({ msgSaved: "1" });
 }
 
 export async function updatePositiveMessageAction(formData: FormData) {
@@ -48,12 +48,12 @@ export async function updatePositiveMessageAction(formData: FormData) {
 
   const id = parsePositiveMessageId(formData.get("id"));
   if (!id) {
-    redirectAdminError("更新対象が見つかりません。");
+    redirectAdminMessagesError("更新対象が見つかりません。");
   }
 
   const parsed = parsePositiveMessageContent(formData.get("content"));
   if (!parsed.ok) {
-    redirectAdminError(parsed.error);
+    redirectAdminMessagesError(parsed.error);
   }
 
   const messageId = id;
@@ -61,7 +61,7 @@ export async function updatePositiveMessageAction(formData: FormData) {
     where: { id: messageId },
   });
   if (!existing) {
-    redirectAdminError("更新対象が見つかりません。");
+    redirectAdminMessagesError("更新対象が見つかりません。");
   }
 
   await prisma.positiveMessage.update({
@@ -69,7 +69,7 @@ export async function updatePositiveMessageAction(formData: FormData) {
     data: { content: parsed.content },
   });
 
-  redirectAdmin({ msgSaved: "1" });
+  redirectAdminMessages({ msgSaved: "1" });
 }
 
 export async function deletePositiveMessageAction(formData: FormData) {
@@ -77,7 +77,7 @@ export async function deletePositiveMessageAction(formData: FormData) {
 
   const id = parsePositiveMessageId(formData.get("id"));
   if (!id) {
-    redirectAdminError("削除対象が見つかりません。");
+    redirectAdminMessagesError("削除対象が見つかりません。");
   }
 
   const messageId = id;
@@ -85,10 +85,10 @@ export async function deletePositiveMessageAction(formData: FormData) {
     where: { id: messageId },
   });
   if (!existing) {
-    redirectAdminError("削除対象が見つかりません。");
+    redirectAdminMessagesError("削除対象が見つかりません。");
   }
 
   await prisma.positiveMessage.delete({ where: { id: messageId } });
 
-  redirectAdmin({ msgDeleted: "1" });
+  redirectAdminMessages({ msgDeleted: "1" });
 }
