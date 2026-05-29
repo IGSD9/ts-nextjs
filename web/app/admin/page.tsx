@@ -98,7 +98,7 @@ export default async function AdminPage({
             <h2 className="text-base font-semibold text-[#173b4a]">FOG アラート</h2>
             <p className="mt-1 text-xs leading-relaxed text-zinc-600">
               直近のチェックインから遡り、濃霧（fog=3）が{" "}
-              {FOG_ALERT_CONSECUTIVE_CHECKINS} 回連続したメンバー（Step 11 定義）
+              {FOG_ALERT_CONSECUTIVE_CHECKINS} 回連続したメンバー
             </p>
           </div>
 
