@@ -205,9 +205,9 @@ function StatCard({
 
 function TeamGaugeBar({ percent }: { percent: number }) {
   return (
-    <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-[#e8eeed]">
+    <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-zinc-200">
       <div
-        className="h-full rounded-full bg-gradient-to-r from-[#1f4c60] to-[#c4a05e] transition-[width]"
+        className="h-full rounded-full bg-orange-500 transition-[width]"
         style={{ width: `${percent}%` }}
         role="progressbar"
         aria-valuenow={percent}
