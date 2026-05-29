@@ -1,31 +1,58 @@
+const installSteps = [
+  {
+    platform: "Chrome / Edge（PC・Android）",
+    steps: [
+      "アドレスバーの「インストール」をタップ",
+      "または メニュー →「アプリをインストール」",
+    ],
+  },
+  {
+    platform: "iPhone（Safari）",
+    steps: ["画面下の共有ボタン →「ホーム画面に追加」"],
+  },
+  {
+    platform: "Android（Chrome）",
+    steps: ["メニュー →「アプリをインストール」または「ホーム画面に追加」"],
+  },
+] as const;
+
 export function PwaInstallGuide() {
   return (
     <section
       id="pwa-install"
-      className="mt-10 scroll-mt-6 rounded-lg border border-zinc-200 bg-zinc-50 p-4"
+      className="mt-8 scroll-mt-6 overflow-hidden rounded-2xl border border-[#e8eeed]"
     >
-      <h2 className="text-sm font-semibold text-zinc-900">ホーム画面に追加</h2>
-      <p className="mt-2 text-sm text-zinc-600">
-        ホーム画面から起動すると、アプリのようにすぐチェックインできます。
-      </p>
-      <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-zinc-700">
-        <li>
-          <strong>Chrome / Edge（PC・Android）</strong>
-          ：アドレスバーの「インストール」、またはメニュー →
-          「アプリをインストール」
-        </li>
-        <li>
-          <strong>iPhone（Safari）</strong>
-          ：画面下の共有ボタン → 「ホーム画面に追加」
-        </li>
-        <li>
-          <strong>Android（Chrome）</strong>
-          ：メニュー → 「アプリをインストール」または「ホーム画面に追加」
-        </li>
-      </ol>
-      <p className="mt-3 text-xs text-zinc-500">
-        本番 URL（HTTPS）でアクセスすると、インストール案内が表示されやすくなります。
-      </p>
+      <div className="border-b border-[#e8eeed] bg-gradient-to-b from-[#f8f5ea]/80 to-white px-4 py-3 sm:px-5">
+        <h2 className="text-base font-semibold text-[#173b4a]">ホーム画面に追加</h2>
+        <p className="mt-1 text-sm leading-relaxed text-zinc-600">
+          ホーム画面から起動すると、アプリのようにすぐチェックインできます。
+        </p>
+      </div>
+
+      <ul className="space-y-3 px-4 py-4 sm:px-5">
+        {installSteps.map((item) => (
+          <li
+            key={item.platform}
+            className="rounded-xl border border-[#e8eeed] bg-[#f7fbfb]/60 p-4"
+          >
+            <p className="text-sm font-semibold text-[#1f4c60]">{item.platform}</p>
+            <ol className="mt-2 space-y-1.5">
+              {item.steps.map((step) => (
+                <li
+                  key={step}
+                  className="flex gap-2 text-sm leading-relaxed text-zinc-700"
+                >
+                  <span
+                    className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#c4a05e]"
+                    aria-hidden
+                  />
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
