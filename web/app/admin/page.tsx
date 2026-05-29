@@ -19,7 +19,7 @@ const secondaryButtonClass =
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: { notesPeriod?: string };
+  searchParams: Promise<{ notesPeriod?: string }>;
 }) {
   const accessToken = await getAccessTokenFromRequest();
   const appUser = await getAppUserFromAccessToken(accessToken);
@@ -32,7 +32,8 @@ export default async function AdminPage({
     redirect("/");
   }
 
-  const notesPeriod = parseOtherNotesPeriod(searchParams.notesPeriod);
+  const { notesPeriod: notesPeriodParam } = await searchParams;
+  const notesPeriod = parseOtherNotesPeriod(notesPeriodParam);
 
   const [summary, fogAlerts, otherNotesResult] = await Promise.all([
     getAdminTeamSummary(),

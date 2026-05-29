@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: { saved?: string; error?: string };
+  searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
   const accessToken = await getAccessTokenFromRequest();
   const appUser = await getAppUserFromAccessToken(accessToken);
@@ -19,10 +19,9 @@ export default async function SettingsPage({
     redirect("/login");
   }
 
-  const saved = searchParams.saved === "1";
-  const errorMessage = searchParams.error
-    ? decodeURIComponent(searchParams.error)
-    : null;
+  const { saved: savedParam, error: errorParam } = await searchParams;
+  const saved = savedParam === "1";
+  const errorMessage = errorParam ? decodeURIComponent(errorParam) : null;
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-xl px-6 py-10">
