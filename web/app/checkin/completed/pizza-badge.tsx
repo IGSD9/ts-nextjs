@@ -36,7 +36,7 @@ export function PizzaBadge({ gaugePercent }: Props) {
 
   return (
     <div className="mt-4 flex items-center gap-3">
-      <span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-900">
+      <span className="inline-flex items-center rounded-full border border-[#dcc07a] bg-[#f8f5ea] px-3 py-1 text-sm font-medium text-[#8a6b2e]">
         ピザ満タン
       </span>
       {showBurst ? (

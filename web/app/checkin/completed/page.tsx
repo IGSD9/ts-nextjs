@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Prisma } from "@prisma/client";
+import { TeamConditionLogo } from "@/components/team-condition-logo";
 import { prisma } from "@/lib/prisma";
 import {
   addDaysUtc,
@@ -12,6 +13,11 @@ import {
 import { PizzaBadge } from "./pizza-badge";
 
 export const dynamic = "force-dynamic";
+
+const primaryButtonClass =
+  "rounded-xl border border-[#1e4555] bg-[#1f4c60] px-5 py-2.5 text-sm font-medium text-white shadow-[0_3px_8px_rgba(31,76,96,0.28)] transition hover:bg-[#163b4a]";
+const secondaryButtonClass =
+  "rounded-xl border border-[#304d5a] bg-white px-5 py-2.5 text-sm font-medium text-[#173b4a] shadow-[0_2px_6px_rgba(31,76,96,0.14)] transition hover:bg-[#f7fbfb]";
 
 export default async function CheckinCompletedPage() {
   const todayTokyo = tokyoDateString();
@@ -42,63 +48,60 @@ export default async function CheckinCompletedPage() {
   const gaugePercent = pizzaGaugePercent(participation01, vitality01);
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-10">
-      <h1 className="text-2xl font-semibold">チェックイン完了</h1>
-      <p className="mt-3 text-zinc-600">
-        今日の入力ありがとうございました。
-      </p>
-
-      {randomMessage ? (
-        <section className="mt-8 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-            Message from Team
+    <main className="home-screen-bg flex min-h-screen items-center justify-center px-4 py-8 sm:px-6">
+      <section className="mx-auto w-full max-w-xl rounded-3xl border border-[#d9dfde] bg-white/90 px-6 py-8 shadow-[0_20px_40px_rgba(10,43,56,0.12)] backdrop-blur-sm sm:px-8">
+        <div className="text-center">
+          <TeamConditionLogo className="mx-auto mb-2 h-10 w-auto" />
+          <h1 className="text-2xl font-semibold tracking-tight text-[#173b4a]">
+            チェックイン完了
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-zinc-600">
+            今日の入力ありがとうございました。
           </p>
-          <p className="mt-2 text-base text-zinc-900">{randomMessage}</p>
-        </section>
-      ) : (
-        <p className="mt-8 text-sm text-zinc-600">
-          チームからのメッセージは準備中です。また明日チェックインしてください。
-        </p>
-      )}
-
-      <section className="mt-8">
-        <p className="text-sm font-medium text-zinc-700">ピザメーター</p>
-        <p className="mt-1 text-xs text-zinc-500">
-          参加率（当日・Tokyo）と直近7日の元気スコア平均（6 − fog）から 0–100 を算出（MVP固定式は
-          <code className="rounded bg-zinc-100 px-1">lib/pizza-meter.ts</code>
-          ）。
-        </p>
-        <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-zinc-200">
-          <div
-            className="h-full rounded-full bg-orange-500 transition-[width]"
-            style={{ width: `${gaugePercent}%` }}
-            role="progressbar"
-            aria-valuenow={gaugePercent}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          />
         </div>
-        <p className="mt-2 text-sm text-zinc-600">
-          {gaugePercent}%（今日の参加 {todayReportCount} / {userCount} 名・7日平均元気{" "}
-          {avgVitality === null ? "—" : avgVitality.toFixed(2)}）
-        </p>
-        <PizzaBadge gaugePercent={gaugePercent} />
-      </section>
 
-      <div className="mt-10 flex flex-wrap gap-3">
-        <Link
-          href="/"
-          className="inline-block rounded-md border border-zinc-300 bg-white px-4 py-2 text-zinc-900"
-        >
-          ホームへ
-        </Link>
-        <Link
-          href="/checkin"
-          className="inline-block rounded-md bg-zinc-900 px-4 py-2 text-white"
-        >
-          もう一度チェックイン
-        </Link>
-      </div>
+        {randomMessage ? (
+          <section className="mt-8 overflow-hidden rounded-2xl border border-[#e8eeed]">
+            <div className="border-b border-[#e8eeed] bg-gradient-to-b from-[#f8f5ea]/80 to-white px-4 py-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-[#1f4c60]">
+                Message from Team
+              </p>
+            </div>
+            <p className="px-4 py-4 text-base leading-relaxed text-zinc-800">
+              {randomMessage}
+            </p>
+          </section>
+        ) : (
+          <p className="mt-8 rounded-xl border border-[#e8eeed] bg-[#f7fbfb] px-4 py-3 text-sm leading-relaxed text-zinc-600">
+            チームからのメッセージは準備中です。また明日チェックインしてください。
+          </p>
+        )}
+
+        <section className="mt-8 rounded-2xl border border-[#e8eeed] bg-[#f7fbfb]/60 p-4">
+          <p className="text-sm font-semibold text-[#173b4a]">ピザメーター</p>
+          <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-[#e8eeed]">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[#1f4c60] to-[#c4a05e] transition-[width]"
+              style={{ width: `${gaugePercent}%` }}
+              role="progressbar"
+              aria-valuenow={gaugePercent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`ピザメーター ${gaugePercent}パーセント`}
+            />
+          </div>
+          <PizzaBadge gaugePercent={gaugePercent} />
+        </section>
+
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link href="/" className={secondaryButtonClass}>
+            ホームへ
+          </Link>
+          <Link href="/checkin" className={primaryButtonClass}>
+            もう一度チェックイン
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }
