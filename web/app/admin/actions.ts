@@ -1,6 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import type { User } from "@prisma/client";
+import {
+  truncateAuditSummary,
+  writeAdminAuditLog,
+} from "@/lib/admin-audit-log";
 import { requireAdminUser } from "@/lib/auth-admin";
 import { prisma } from "@/lib/prisma";
 import {
@@ -21,30 +26,39 @@ function redirectAdminMessagesError(message: string): never {
   redirect(`/admin/messages?${query.toString()}`);
 }
 
-async function ensureAdminOrRedirectLogin() {
+async function ensureAdminOrRedirectLogin(): Promise<User> {
   const auth = await requireAdminUser();
   if (!auth.ok) {
-    redirect("/login?next=/admin");
+    redirect("/login?next=/admin/messages");
   }
+  return auth.user;
 }
 
 export async function createPositiveMessageAction(formData: FormData) {
-  await ensureAdminOrRedirectLogin();
+  const admin = await ensureAdminOrRedirectLogin();
 
   const parsed = parsePositiveMessageContent(formData.get("content"));
   if (!parsed.ok) {
     redirectAdminMessagesError(parsed.error);
   }
 
-  await prisma.positiveMessage.create({
+  const created = await prisma.positiveMessage.create({
     data: { content: parsed.content },
+  });
+
+  await writeAdminAuditLog({
+    actorUserId: admin.id,
+    action: "create",
+    targetType: "positive_message",
+    targetId: created.id,
+    summary: `追加: ${truncateAuditSummary(parsed.content)}`,
   });
 
   redirectAdminMessages({ msgSaved: "1" });
 }
 
 export async function updatePositiveMessageAction(formData: FormData) {
-  await ensureAdminOrRedirectLogin();
+  const admin = await ensureAdminOrRedirectLogin();
 
   const id = parsePositiveMessageId(formData.get("id"));
   if (!id) {
@@ -69,11 +83,19 @@ export async function updatePositiveMessageAction(formData: FormData) {
     data: { content: parsed.content },
   });
 
+  await writeAdminAuditLog({
+    actorUserId: admin.id,
+    action: "update",
+    targetType: "positive_message",
+    targetId: messageId,
+    summary: `更新: ${truncateAuditSummary(parsed.content)}`,
+  });
+
   redirectAdminMessages({ msgSaved: "1" });
 }
 
 export async function deletePositiveMessageAction(formData: FormData) {
-  await ensureAdminOrRedirectLogin();
+  const admin = await ensureAdminOrRedirectLogin();
 
   const id = parsePositiveMessageId(formData.get("id"));
   if (!id) {
@@ -89,6 +111,14 @@ export async function deletePositiveMessageAction(formData: FormData) {
   }
 
   await prisma.positiveMessage.delete({ where: { id: messageId } });
+
+  await writeAdminAuditLog({
+    actorUserId: admin.id,
+    action: "delete",
+    targetType: "positive_message",
+    targetId: messageId,
+    summary: `削除: ${truncateAuditSummary(existing.content)}`,
+  });
 
   redirectAdminMessages({ msgDeleted: "1" });
 }

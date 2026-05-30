@@ -184,6 +184,9 @@ export default async function AdminPage({
           <Link href="/admin/messages" className={primaryButtonClass}>
             チームメッセージを編集
           </Link>
+          <Link href="/admin/members" className={primaryButtonClass}>
+            メンバー・操作履歴
+          </Link>
           <Link href="/" className={secondaryButtonClass}>
             ホームへ
           </Link>

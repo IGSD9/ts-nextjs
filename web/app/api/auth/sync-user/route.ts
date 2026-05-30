@@ -63,10 +63,11 @@ export async function POST(request: Request) {
   try {
     const appUser = await prisma.user.upsert({
       where: { email: user.email },
-      update: {},
+      update: { lastLoginAt: new Date() },
       create: {
         email: user.email,
         name: displayName,
+        lastLoginAt: new Date(),
       },
     });
     return NextResponse.json({ userId: appUser.id });

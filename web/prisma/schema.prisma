@@ -7,11 +7,13 @@ datasource db {
 }
 
 model User {
-  id      String        @id @default(cuid())
-  email   String        @unique
-  name    String
-  role    String        @default("user")
-  reports DailyReport[]
+  id          String          @id @default(cuid())
+  email       String          @unique
+  name        String
+  role        String          @default("user")
+  lastLoginAt DateTime?
+  reports     DailyReport[]
+  auditLogs   AdminAuditLog[]
 }
 
 model DailyReport {
@@ -35,4 +37,15 @@ model DailyReport {
 model PositiveMessage {
   id      String @id @default(cuid())
   content String
+}
+
+model AdminAuditLog {
+  id          String   @id @default(cuid())
+  actorUserId String
+  actor       User     @relation(fields: [actorUserId], references: [id])
+  action      String
+  targetType  String
+  targetId    String
+  summary     String
+  createdAt   DateTime @default(now())
 }
