@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { AdminAuditLogSection } from "@/components/admin-audit-log-section";
 import { AdminMembersSection } from "@/components/admin-members-section";
 import { TeamConditionLogo } from "@/components/team-condition-logo";
-import { getAdminAuditLogs } from "@/lib/admin-audit-log";
 import { getAdminMembers } from "@/lib/admin-members";
 import { getAccessTokenFromRequest, getAppUserFromAccessToken } from "@/lib/auth";
 
@@ -24,10 +22,7 @@ export default async function AdminMembersPage() {
     redirect("/");
   }
 
-  const [membersResult, auditLogs] = await Promise.all([
-    getAdminMembers(),
-    getAdminAuditLogs(),
-  ]);
+  const membersResult = await getAdminMembers();
 
   return (
     <main className="home-screen-bg min-h-screen px-4 py-8 sm:px-6">
@@ -35,15 +30,14 @@ export default async function AdminMembersPage() {
         <div className="text-center">
           <TeamConditionLogo className="mx-auto mb-2 h-10 w-auto" />
           <h1 className="text-2xl font-semibold tracking-tight text-[#173b4a]">
-            メンバー・操作履歴
+            メンバー一覧
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-zinc-600">
-            登録ユーザーの一覧、管理者の確認、最終ログイン、チームメッセージの編集履歴を表示します。
+            登録ユーザーの一覧、管理者の確認、最終ログイン日を表示します。
           </p>
         </div>
 
         <AdminMembersSection data={membersResult} />
-        <AdminAuditLogSection entries={auditLogs} />
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href="/admin" className={secondaryButtonClass}>

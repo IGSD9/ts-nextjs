@@ -23,7 +23,6 @@ export type AdminOtherNoteEntry = {
   id: string;
   reportDate: string;
   userName: string;
-  userEmail: string;
   otherNote: string;
 };
 
@@ -81,7 +80,7 @@ export async function getAdminOtherNotes(
         : {}),
     },
     include: {
-      user: { select: { name: true, email: true } },
+      user: { select: { name: true } },
     },
     orderBy: [{ reportDate: "desc" }, { createdAt: "desc" }],
   });
@@ -94,7 +93,6 @@ export async function getAdminOtherNotes(
         id: report.id,
         reportDate: reportDateKey(report.reportDate),
         userName: report.user.name,
-        userEmail: report.user.email,
         otherNote: trimmed,
       };
     })

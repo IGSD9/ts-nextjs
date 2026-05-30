@@ -45,11 +45,10 @@ export function AdminMembersSection({ data }: AdminMembersSectionProps) {
             </p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[48rem] border-collapse text-left text-sm">
+              <table className="w-full min-w-[36rem] border-collapse text-left text-sm">
                 <thead>
                   <tr className="border-b border-[#e8eeed] text-[#1f4c60]">
                     <th className="py-2 pr-4 font-medium">表示名</th>
-                    <th className="py-2 pr-4 font-medium">メール</th>
                     <th className="py-2 pr-4 font-medium">ロール</th>
                     <th className="py-2 pr-4 font-medium">最終ログイン</th>
                     <th className="py-2 pr-4 font-medium">回答数</th>
@@ -63,7 +62,6 @@ export function AdminMembersSection({ data }: AdminMembersSectionProps) {
                       <td className="py-3 pr-4 font-medium text-[#173b4a]">
                         {member.name}
                       </td>
-                      <td className="py-3 pr-4 text-zinc-700">{member.email}</td>
                       <td className="py-3 pr-4">
                         {member.isAdmin ? (
                           <span className="inline-flex rounded-full border border-[#d4c4a0] bg-[#f8f5ea] px-2.5 py-0.5 text-xs font-medium text-[#7a5c1e]">

@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 export type AdminMemberRow = {
   id: string;
   name: string;
-  email: string;
   role: string;
   isAdmin: boolean;
   lastLoginAt: Date | null;
@@ -40,7 +39,6 @@ export async function getAdminMembers(): Promise<AdminMembersResult> {
       select: {
         id: true,
         name: true,
-        email: true,
         role: true,
         lastLoginAt: true,
         _count: { select: { reports: true } },
@@ -66,11 +64,12 @@ export async function getAdminMembers(): Promise<AdminMembersResult> {
     return {
       id: user.id,
       name: user.name,
-      email: user.email,
       role: user.role,
       isAdmin,
       lastLoginAt: user.lastLoginAt,
-      lastLoginLabel: formatTokyoDateTimeLabel(user.lastLoginAt),
+      lastLoginLabel: user.lastLoginAt
+        ? formatTokyoDate(user.lastLoginAt)
+        : "未記録",
       loggedInToday: isSameTokyoDate(user.lastLoginAt, todayLabel),
       reportCount: user._count.reports,
       lastReportDate: lastReport ? formatTokyoDate(lastReport) : null,
@@ -89,16 +88,4 @@ export async function getAdminMembers(): Promise<AdminMembersResult> {
     },
     members,
   };
-}
-
-function formatTokyoDateTimeLabel(value: Date | null): string {
-  if (!value) return "未記録";
-  return value.toLocaleString("ja-JP", {
-    timeZone: "Asia/Tokyo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }

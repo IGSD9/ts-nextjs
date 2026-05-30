@@ -170,7 +170,6 @@ export default async function AdminPage({
                     <p className="font-medium text-[#173b4a]">{entry.userName}</p>
                     <p className="text-xs text-zinc-500">{entry.reportDate}</p>
                   </div>
-                  <p className="mt-0.5 text-xs text-zinc-500">{entry.userEmail}</p>
                   <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-800">
                     {entry.otherNote}
                   </p>
@@ -185,7 +184,7 @@ export default async function AdminPage({
             チームメッセージを編集
           </Link>
           <Link href="/admin/members" className={primaryButtonClass}>
-            メンバー・操作履歴
+            メンバー一覧
           </Link>
           <Link href="/" className={secondaryButtonClass}>
             ホームへ
