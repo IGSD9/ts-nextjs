@@ -9,6 +9,18 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const createBrowserSupabaseClient = () =>
-  createClient(supabaseUrl, supabaseAnonKey);
+let browserClient: ReturnType<typeof createClient> | null = null;
 
+export const createBrowserSupabaseClient = () => {
+  if (!browserClient) {
+    browserClient = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        detectSessionInUrl: true,
+        flowType: "pkce",
+      },
+    });
+  }
+
+  return browserClient;
+};

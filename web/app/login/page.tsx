@@ -50,7 +50,7 @@ export default function LoginPage() {
             ログイン
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-zinc-600">
-            メールアドレスを入力すると、ログインリンクを送信します。
+            メールアドレスを入力すると、ログインリンクを送信します。ログアウトするまでログイン状態を維持します。
           </p>
         </div>
 
@@ -90,6 +90,10 @@ export default function LoginPage() {
             {error}
           </p>
         ) : null}
+
+        <p className="mt-6 text-xs leading-relaxed text-zinc-500">
+          別のアカウントでログインする場合は、設定画面またはホームからログアウトしてから、新しいメールアドレスでログインリンクを取得してください。
+        </p>
 
         <div className="mt-8 text-center">
           <Link

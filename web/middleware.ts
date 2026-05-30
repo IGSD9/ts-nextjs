@@ -1,6 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
-
-const ACCESS_TOKEN_COOKIE_NAME = "tc_access_token";
+import {
+  ACCESS_TOKEN_COOKIE_NAME,
+  applySessionCookies,
+  attachAccessTokenHeader,
+  resolveSessionFromRequest,
+} from "@/lib/auth-session";
 
 function isPublicPath(pathname: string) {
   return (
@@ -22,20 +26,60 @@ function isProtectedPath(pathname: string) {
   );
 }
 
+function shouldRefreshSession(pathname: string) {
+  return !pathname.startsWith("/api/") && !pathname.startsWith("/_next/");
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (isPublicPath(pathname) || !isProtectedPath(pathname)) {
-    return NextResponse.next();
+  let accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE_NAME)?.value ?? "";
+  let refreshApplied = false;
+  let refreshedSession: { access_token: string; refresh_token: string } | null =
+    null;
+
+  if (shouldRefreshSession(pathname)) {
+    const resolved = await resolveSessionFromRequest(request);
+    if (resolved) {
+      accessToken = resolved.accessToken;
+      if (resolved.refreshed) {
+        refreshApplied = true;
+        refreshedSession = {
+          access_token: resolved.accessToken,
+          refresh_token: resolved.refreshToken,
+        };
+      }
+    } else if (accessToken) {
+      accessToken = "";
+    }
   }
 
-  const accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE_NAME)?.value ?? "";
+  const buildResponse = (response: NextResponse) => {
+    if (refreshApplied && refreshedSession) {
+      applySessionCookies(response, refreshedSession);
+    }
+    return response;
+  };
+
+  if (isPublicPath(pathname) || !isProtectedPath(pathname)) {
+    if (!accessToken) {
+      return buildResponse(NextResponse.next());
+    }
+
+    const requestHeaders = attachAccessTokenHeader(request, accessToken);
+    return buildResponse(
+      NextResponse.next({ request: { headers: requestHeaders } }),
+    );
+  }
+
   if (!accessToken) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
+    return buildResponse(NextResponse.redirect(url));
   }
+
+  const requestHeaders = attachAccessTokenHeader(request, accessToken);
 
   if (pathname.startsWith("/admin")) {
     const roleUrl = new URL("/api/auth/role", request.url);
@@ -47,7 +91,7 @@ export async function middleware(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.searchParams.set("next", pathname);
-      return NextResponse.redirect(url);
+      return buildResponse(NextResponse.redirect(url));
     }
 
     const data = (await roleRes.json().catch(() => null)) as
@@ -56,11 +100,13 @@ export async function middleware(request: NextRequest) {
     if (data?.role !== "admin") {
       const url = request.nextUrl.clone();
       url.pathname = "/";
-      return NextResponse.redirect(url);
+      return buildResponse(NextResponse.redirect(url));
     }
   }
 
-  return NextResponse.next();
+  return buildResponse(
+    NextResponse.next({ request: { headers: requestHeaders } }),
+  );
 }
 
 export const config = {
@@ -69,6 +115,6 @@ export const config = {
     "/checkin/:path*",
     "/dashboard/:path*",
     "/settings/:path*",
+    "/",
   ],
 };
-

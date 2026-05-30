@@ -13,13 +13,27 @@ export default function AuthCallbackPage() {
     const run = async () => {
       try {
         const supabase = createBrowserSupabaseClient();
-        const {
-          data: { session },
-          error: sessionError,
-        } = await supabase.auth.getSession();
+        const callbackUrl = new URL(window.location.href);
+        const code = callbackUrl.searchParams.get("code");
 
-        if (sessionError) {
-          throw sessionError;
+        let session = null;
+
+        if (code) {
+          const { data, error: exchangeError } =
+            await supabase.auth.exchangeCodeForSession(code);
+          if (exchangeError) {
+            throw exchangeError;
+          }
+          session = data.session;
+        } else {
+          const {
+            data: { session: existingSession },
+            error: sessionError,
+          } = await supabase.auth.getSession();
+          if (sessionError) {
+            throw sessionError;
+          }
+          session = existingSession;
         }
 
         if (!session) {
@@ -30,8 +44,12 @@ export default function AuthCallbackPage() {
         const setSessionResponse = await fetch("/api/auth/set-session", {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${session.access_token}`,
+            "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            accessToken: session.access_token,
+            refreshToken: session.refresh_token,
+          }),
         });
         if (!setSessionResponse.ok) {
           throw new Error("セッション保存に失敗しました。");

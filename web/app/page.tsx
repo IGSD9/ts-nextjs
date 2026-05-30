@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LogoutButton } from "@/components/logout-button";
 import { TeamConditionLogo } from "@/components/team-condition-logo";
 import { getAccessTokenFromRequest, getAppUserFromAccessToken } from "@/lib/auth";
 
@@ -60,6 +61,12 @@ export default async function Home() {
                 ログインへ進む
               </Link>
             ) : null}
+          </div>
+        ) : null}
+
+        {appUser ? (
+          <div className="mt-6 flex justify-center">
+            <LogoutButton />
           </div>
         ) : null}
       </section>

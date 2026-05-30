@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { LogoutButton } from "@/components/logout-button";
 import { TeamConditionLogo } from "@/components/team-condition-logo";
 import { PwaInstallGuide } from "@/components/pwa-install-guide";
 import { getAccessTokenFromRequest, getAppUserFromAccessToken } from "@/lib/auth";
@@ -86,6 +87,23 @@ export default async function SettingsPage({
         </section>
 
         <PwaInstallGuide />
+
+        <section className="mt-8 overflow-hidden rounded-2xl border border-[#e8eeed]">
+          <div className="border-b border-[#e8eeed] bg-gradient-to-b from-[#f8f5ea]/80 to-white px-4 py-3 sm:px-5">
+            <h2 className="text-base font-semibold text-[#173b4a]">ログイン</h2>
+            <p className="mt-1 text-sm leading-relaxed text-zinc-600">
+              ログアウトするまでログイン状態を維持します。別のアカウントに切り替える場合は、先にログアウトしてください。
+            </p>
+          </div>
+          <div className="px-4 py-4 sm:px-5">
+            <p className="text-sm text-zinc-700">
+              現在の表示名: <span className="font-medium text-[#173b4a]">{appUser.name}</span>
+            </p>
+            <div className="mt-4">
+              <LogoutButton />
+            </div>
+          </div>
+        </section>
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href="/dashboard" className={secondaryButtonClass}>
