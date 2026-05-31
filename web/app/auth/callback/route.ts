@@ -21,19 +21,26 @@ export async function GET(request: NextRequest) {
   if (code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
-      authErrorMessage = error.message;
+      authErrorMessage = error.message.includes("PKCE code verifier")
+        ? "pkce_link"
+        : error.message;
     } else {
       session = data.session;
     }
   } else if (tokenHash && type) {
-    const { data, error } = await supabase.auth.verifyOtp({
-      token_hash: tokenHash,
-      type: type as EmailOtpType,
-    });
-    if (error) {
-      authErrorMessage = error.message;
-    } else {
-      session = data.session;
+    const otpTypes: EmailOtpType[] = [type as EmailOtpType, "email", "magiclink"];
+    const uniqueTypes = [...new Set(otpTypes)];
+
+    for (const otpType of uniqueTypes) {
+      const { data, error } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: otpType,
+      });
+      if (!error && data.session) {
+        session = data.session;
+        break;
+      }
+      authErrorMessage = error?.message ?? authErrorMessage;
     }
   } else {
     authErrorMessage = "認証情報が見つかりませんでした。";

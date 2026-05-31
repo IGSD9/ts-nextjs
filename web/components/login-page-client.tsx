@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { TeamConditionLogo } from "@/components/team-condition-logo";
+import { formatLoginErrorMessage } from "@/lib/format-login-error";
 import { createBrowserSupabaseClient } from "@/lib/supabase-browser";
 
 export function LoginPageClient() {
@@ -16,7 +17,7 @@ export function LoginPageClient() {
   useEffect(() => {
     const errorParam = searchParams.get("error");
     if (errorParam) {
-      setError(decodeURIComponent(errorParam));
+      setError(formatLoginErrorMessage(decodeURIComponent(errorParam)));
     }
   }, [searchParams]);
 
@@ -33,7 +34,7 @@ export function LoginPageClient() {
       const supabase = createBrowserSupabaseClient();
       const redirectTo = `${window.location.origin}/auth/callback`;
       const { error: signInError } = await supabase.auth.signInWithOtp({
-        email,
+        email: email.trim(),
         options: { emailRedirectTo: redirectTo },
       });
 
@@ -42,7 +43,7 @@ export function LoginPageClient() {
       }
 
       setMessage(
-        "ログインリンクを送信しました。メールのリンクを Safari / Chrome で開いてください（メールアプリ内ブラウザだと失敗することがあります）。",
+        "ログインリンクを送信しました。メール内のリンクをタップしてログインしてください。",
       );
     } catch (caughtError) {
       const fallback = "ログインリンクの送信に失敗しました。時間をおいて再試行してください。";
@@ -97,13 +98,13 @@ export function LoginPageClient() {
           </p>
         ) : null}
         {error ? (
-          <p className="mt-4 rounded-xl border border-[#e8c4c4] bg-[#fdf5f5] px-3 py-2 text-sm text-[#8b3a3a]">
+          <p className="mt-4 rounded-xl border border-[#e8c4c4] bg-[#fdf5f5] px-3 py-2 text-sm leading-relaxed text-[#8b3a3a]">
             {error}
           </p>
         ) : null}
 
         <p className="mt-6 text-xs leading-relaxed text-zinc-500">
-          スマホの場合: メール内リンクを長押し →「Safariで開く」または「Chromeで開く」を選んでください。別のアカウントに切り替える場合は、先にログアウトしてください。
+          スマホでリンクが開けない場合: リンクを長押し →「Safariで開く」または「Chromeで開く」を選んでください。別のアカウントに切り替える場合は、先にログアウトしてください。
         </p>
 
         <div className="mt-8 text-center">

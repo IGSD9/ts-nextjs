@@ -122,13 +122,13 @@ Redirect URLs: https://team-condition-checker.vercel.app/auth/callback
 
 ### 3-1. スマホ向けメールテンプレート（Magic Link）
 
-メールアプリ内ブラウザでもログインできるよう、**Authentication → Email Templates → Magic Link** の本文リンクを次に変更:
+メールアプリ内ブラウザでもリンクログインできるよう、**Authentication → Email Templates → Magic Link** の本文リンクを次に変更:
 
 ```html
 <a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email">ログインする</a>
 ```
 
-※ デフォルトの `{{ .ConfirmationURL }}` のままだと、スマホで PKCE エラーになることがあります。
+※ デフォルトの `{{ .ConfirmationURL }}` は PKCE 用のため、スマホのメールアプリ内ブラウザで開くとログインに失敗します。上記に差し替えると、**今まで通りリンクをタップするだけ**でログインできます。
 
 ---
 
